@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="footer-container">
         <div className="footer-content">
           <p className="footer-copyright">
-            © 2025 Gadit. All rights reserved.
+            © 2025 CodeIT. All rights reserved.
           </p>
           <div className="footer-links">
             <a href="#privacy">Privacy</a>

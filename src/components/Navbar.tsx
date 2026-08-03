@@ -12,6 +12,20 @@ interface NavbarProps {
   onLogoClick?: () => void
 }
 
+interface NavLink {
+  label: string
+  href: string
+  ariaLabel: string
+  onClick?: () => void
+}
+
+interface NavItem {
+  label: string
+  bgColor: string
+  textColor: string
+  links: NavLink[]
+}
+
 const Navbar = ({ onLogin, onRegister, onLogoClick }: NavbarProps) => {
   const [isHamburgerOpen, setIsHamburgerOpen] = useState(false)
   const [isExpanded, setIsExpanded] = useState(false)
@@ -21,7 +35,7 @@ const Navbar = ({ onLogin, onRegister, onLogoClick }: NavbarProps) => {
   const navigate = useNavigate()
   const { theme, toggleTheme } = useTheme()
 
-  const navItems = [
+  const navItems: NavItem[] = [
     {
       label: 'Navigation',
       bgColor: '#0D0716',
@@ -71,7 +85,8 @@ const Navbar = ({ onLogin, onRegister, onLogoClick }: NavbarProps) => {
         contentEl.style.pointerEvents = 'auto'
         contentEl.style.position = 'static'
         contentEl.style.height = 'auto'
-        contentEl.offsetHeight
+        // Force a reflow so scrollHeight reflects the expanded mobile layout
+        void contentEl.offsetHeight
 
         const topBar = 60
         const padding = 16
@@ -253,7 +268,7 @@ const Navbar = ({ onLogin, onRegister, onLogoClick }: NavbarProps) => {
     if (onLogoClick) onLogoClick()
   }
 
-  const handleLinkClick = (link: any, e: React.MouseEvent) => {
+  const handleLinkClick = (link: NavLink, e: React.MouseEvent) => {
     if (link.onClick) {
       e.preventDefault()
       link.onClick()
@@ -282,7 +297,7 @@ const Navbar = ({ onLogin, onRegister, onLogoClick }: NavbarProps) => {
           </div>
 
           <div className="logo-container" onClick={handleLogoClick}>
-            <span className="logo-text">Gadit</span>
+            <span className="logo-text">CodeIT</span>
           </div>
 
           <div className="card-nav-top-actions">

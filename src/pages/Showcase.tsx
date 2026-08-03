@@ -22,7 +22,7 @@ interface ShowcaseProps {
 
 const Showcase = ({ onLogin, onRegister, onLogoClick }: ShowcaseProps) => {
   useEffect(() => {
-    document.title = 'Component Showcase - Gadit'
+    document.title = 'Component Showcase - CodeIT'
   }, [])
 
   return (
@@ -62,7 +62,7 @@ const Showcase = ({ onLogin, onRegister, onLogoClick }: ShowcaseProps) => {
             <div className="creators">
               <p>Powered by</p>
               <div className="creator-names">
-                <span>Gadit Team</span>
+                <span>CodeIT Team</span>
               </div>
             </div>
           </div>

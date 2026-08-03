@@ -16,28 +16,28 @@ const components = [
 
 const testimonials = [
   {
-    quote: "Gadit transformed our business with intelligent automation",
+    quote: "CodeIT transformed our business with intelligent automation",
     author: "Sarah Chen",
     role: "CTO, TechCorp",
-    highlight: "Thanks to Gadit's AI automation solutions, we've reduced manual work by 80% and scaled our operations effortlessly."
+    highlight: "Thanks to CodeIT's AI automation solutions, we've reduced manual work by 80% and scaled our operations effortlessly."
   },
   {
     quote: "The best web development partner we've worked with.",
     author: "Michael Rodriguez",
     role: "Founder, StartupHub",
-    highlight: "Gadit delivered a stunning web application that exceeded our expectations. Their expertise in modern tech is unmatched."
+    highlight: "CodeIT delivered a stunning web application that exceeded our expectations. Their expertise in modern tech is unmatched."
   },
   {
     quote: "Their AI solutions are game-changing for our industry.",
     author: "Emily Watson",
     role: "Operations Director",
-    highlight: "Gadit's automation tools have revolutionized how we handle data processing and customer interactions."
+    highlight: "CodeIT's automation tools have revolutionized how we handle data processing and customer interactions."
   },
   {
-    quote: "From concept to deployment, Gadit made it seamless.",
+    quote: "From concept to deployment, CodeIT made it seamless.",
     author: "David Kim",
     role: "Product Manager",
-    highlight: "Gadit is a one-stop solution, offering everything from custom web apps to advanced AI automation that drives real results."
+    highlight: "CodeIT is a one-stop solution, offering everything from custom web apps to advanced AI automation that drives real results."
   }
 ]
 
@@ -115,7 +115,7 @@ const Home = ({ onLogin, onRegister, onLogoClick }: HomeProps) => {
                   <path d="M8 5v14l11-7z"/>
                 </svg>
               </div>
-              <p>Gadit in action</p>
+              <p>CodeIT in action</p>
               <span className="video-duration">00:48</span>
             </div>
           </div>
@@ -183,7 +183,7 @@ const Home = ({ onLogin, onRegister, onLogoClick }: HomeProps) => {
         <div className="showcase-container">
           <div className="showcase-header">
             <h2 className="section-title showcase-title">
-              Gadit is a leading company specializing in web development, mobile applications, and AI automation solutions. 
+              CodeIT is a leading company specializing in web development, mobile applications, and AI automation solutions. 
               We transform ideas into powerful digital experiences that drive business growth.
             </h2>
           </div>
@@ -205,7 +205,7 @@ const Home = ({ onLogin, onRegister, onLogoClick }: HomeProps) => {
             <div className="creators">
               <p>Powered by</p>
               <div className="creator-names">
-                <span>Gadit Team</span>
+                <span>CodeIT Team</span>
               </div>
             </div>
           </div>
@@ -240,8 +240,8 @@ const Home = ({ onLogin, onRegister, onLogoClick }: HomeProps) => {
 
           <div className="faq-list">
             <FAQItem 
-              question="What services does Gadit offer?"
-              answer="Gadit specializes in web development, mobile app creation, and AI automation solutions. We provide end-to-end services from design to deployment, including custom web applications, responsive mobile apps, and intelligent automation systems that streamline business processes."
+              question="What services does CodeIT offer?"
+              answer="CodeIT specializes in web development, mobile app creation, and AI automation solutions. We provide end-to-end services from design to deployment, including custom web applications, responsive mobile apps, and intelligent automation systems that streamline business processes."
             />
             <FAQItem 
               question="How long does a typical project take?"

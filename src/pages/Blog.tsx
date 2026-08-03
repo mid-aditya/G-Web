@@ -11,7 +11,7 @@ interface BlogProps {
 const Blog = ({ onLogin, onRegister, onLogoClick }: BlogProps) => {
   useEffect(() => {
     // SEO Meta Tags
-    document.title = 'Blog - Gadit | Web Development, Mobile Apps & AI Automation Insights'
+    document.title = 'Blog - CodeIT | Web Development, Mobile Apps & AI Automation Insights'
     
     // Update meta description
     let metaDescription = document.querySelector('meta[name="description"]')
@@ -20,7 +20,7 @@ const Blog = ({ onLogin, onRegister, onLogoClick }: BlogProps) => {
       metaDescription.setAttribute('name', 'description')
       document.head.appendChild(metaDescription)
     }
-    metaDescription.setAttribute('content', 'Read the latest articles, tutorials, and insights about web development, mobile app creation, and AI automation from the Gadit team. Stay updated with industry trends and best practices.')
+    metaDescription.setAttribute('content', 'Read the latest articles, tutorials, and insights about web development, mobile app creation, and AI automation from the CodeIT team. Stay updated with industry trends and best practices.')
     
     // Update meta keywords
     let metaKeywords = document.querySelector('meta[name="keywords"]')
@@ -34,12 +34,12 @@ const Blog = ({ onLogin, onRegister, onLogoClick }: BlogProps) => {
     // Open Graph tags
     const ogTitle = document.querySelector('meta[property="og:title"]') || document.createElement('meta')
     if (!ogTitle.getAttribute('property')) ogTitle.setAttribute('property', 'og:title')
-    ogTitle.setAttribute('content', 'Blog - Gadit | Web Development & AI Automation Insights')
+    ogTitle.setAttribute('content', 'Blog - CodeIT | Web Development & AI Automation Insights')
     if (!document.querySelector('meta[property="og:title"]')) document.head.appendChild(ogTitle)
     
     const ogDescription = document.querySelector('meta[property="og:description"]') || document.createElement('meta')
     if (!ogDescription.getAttribute('property')) ogDescription.setAttribute('property', 'og:description')
-    ogDescription.setAttribute('content', 'Latest updates, tutorials, and insights from the Gadit team about web development, mobile apps, and AI automation.')
+    ogDescription.setAttribute('content', 'Latest updates, tutorials, and insights from the CodeIT team about web development, mobile apps, and AI automation.')
     if (!document.querySelector('meta[property="og:description"]')) document.head.appendChild(ogDescription)
     
     const ogType = document.querySelector('meta[property="og:type"]') || document.createElement('meta')
@@ -55,12 +55,12 @@ const Blog = ({ onLogin, onRegister, onLogoClick }: BlogProps) => {
     
     const twitterTitle = document.querySelector('meta[name="twitter:title"]') || document.createElement('meta')
     if (!twitterTitle.getAttribute('name')) twitterTitle.setAttribute('name', 'twitter:title')
-    twitterTitle.setAttribute('content', 'Blog - Gadit')
+    twitterTitle.setAttribute('content', 'Blog - CodeIT')
     if (!document.querySelector('meta[name="twitter:title"]')) document.head.appendChild(twitterTitle)
     
     const twitterDescription = document.querySelector('meta[name="twitter:description"]') || document.createElement('meta')
     if (!twitterDescription.getAttribute('name')) twitterDescription.setAttribute('name', 'twitter:description')
-    twitterDescription.setAttribute('content', 'Latest updates, tutorials, and insights from the Gadit team')
+    twitterDescription.setAttribute('content', 'Latest updates, tutorials, and insights from the CodeIT team')
     if (!document.querySelector('meta[name="twitter:description"]')) document.head.appendChild(twitterDescription)
     
     // Canonical URL
@@ -88,7 +88,7 @@ const Blog = ({ onLogin, onRegister, onLogoClick }: BlogProps) => {
               Blog
             </h1>
             <p className="section-subtitle">
-              Latest updates, tutorials, and insights from the Gadit team
+              Latest updates, tutorials, and insights from the CodeIT team
             </p>
           </div>
 

@@ -72,7 +72,7 @@ const Register = ({ onClose, onSwitchToLogin }: RegisterProps) => {
         </div>
 
         <div className="auth-body">
-          <h2 className="auth-title">Join Gadit</h2>
+          <h2 className="auth-title">Join CodeIT</h2>
           <p className="auth-subtitle">Create your account to get started</p>
 
           <form className="auth-form">
