@@ -1,107 +1,106 @@
-import { useEffect, useRef, useState } from 'react'
-import '../App.css'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
+import { useAuthStore } from '../stores/authStore'
+import './Auth.css'
 
-interface RegisterProps {
-  onClose: () => void
-  onSwitchToLogin: () => void
-}
+const Register = () => {
+  const navigate = useNavigate()
+  const { register } = useAuthStore()
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-const Register = ({ onClose, onSwitchToLogin }: RegisterProps) => {
-  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 })
-  const [facePos, setFacePos] = useState({ x: 0, y: 0 })
-  const pageRef = useRef<HTMLDivElement>(null)
-  const faceRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setCursorPos({ x: e.clientX, y: e.clientY })
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    try {
+      await register({ name, email, phone, password })
+      toast.success('Akun berhasil dibuat!')
+      navigate('/')
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Pendaftaran gagal')
+    } finally {
+      setIsLoading(false)
     }
-
-    window.addEventListener('mousemove', handleMouseMove)
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!pageRef.current || !faceRef.current) return
-
-    const pageRect = pageRef.current.getBoundingClientRect()
-    const pageCenterX = pageRect.left + pageRect.width / 2
-    const pageCenterY = pageRect.top + pageRect.height / 2
-
-    const deltaX = cursorPos.x - pageCenterX
-    const deltaY = cursorPos.y - pageCenterY
-    const maxDistance = 100
-
-    const moveX = Math.min(deltaX * 0.15, maxDistance)
-    const moveY = Math.min(deltaY * 0.15, maxDistance)
-
-    setFacePos({ x: moveX, y: moveY })
-  }, [cursorPos])
+  }
 
   return (
-    <div className="app">
-      <div className="auth-page" ref={pageRef}>
-        <button className="auth-close" onClick={onClose}>×</button>
-        
-        {/* Face Follow Cursor */}
-        <div 
-          className="face-mascot" 
-          ref={faceRef}
-          style={{
-            transform: `translate(${facePos.x}px, ${facePos.y}px)`
-          }}
-        >
-          <div className="face">
-            <div className="face-eyes">
-              <div className="eye">
-                <div className="pupil" style={{
-                  transform: `translate(${facePos.x * 0.3}px, ${facePos.y * 0.3}px)`
-                }}></div>
-              </div>
-              <div className="eye">
-                <div className="pupil" style={{
-                  transform: `translate(${facePos.x * 0.3}px, ${facePos.y * 0.3}px)`
-                }}></div>
-              </div>
-            </div>
-            <div className="face-mouth"></div>
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-left">
+          <div className="auth-brand">
+            <span className="logo-mark">+</span>
+            <span className="logo-text">SETSUKO</span>
           </div>
+          <h1>Buat Akun<br />Baru</h1>
+          <p>Daftar untuk menikmati pengalaman belanja yang lebih baik</p>
         </div>
 
-        <div className="auth-body">
-          <h2 className="auth-title">Join CodeIT</h2>
-          <p className="auth-subtitle">Create your account to get started</p>
+        <div className="auth-right">
+          <form onSubmit={handleSubmit} className="auth-form">
+            <h2>Daftar</h2>
 
-          <form className="auth-form">
             <div className="form-group">
-              <label>Full Name</label>
-              <input type="text" placeholder="Enter your name" />
+              <label>Nama Lengkap</label>
+              <input
+                type="text"
+                className="input"
+                placeholder="Nama Anda"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
             </div>
+
             <div className="form-group">
               <label>Email</label>
-              <input type="email" placeholder="Enter your email" />
+              <input
+                type="email"
+                className="input"
+                placeholder="email@contoh.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
+
+            <div className="form-group">
+              <label>No. Telepon (opsional)</label>
+              <input
+                type="tel"
+                className="input"
+                placeholder="08xxxxxxxxxx"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+
             <div className="form-group">
               <label>Password</label>
-              <input type="password" placeholder="Enter your password" />
+              <input
+                type="password"
+                className="input"
+                placeholder="Min. 6 karakter"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
+              />
             </div>
-            <button type="submit" className="btn-submit">Create Account</button>
-          </form>
 
-          <div className="auth-footer">
-            <p>
-              Already have an account?{' '}
-              <button 
-                className="link-button"
-                onClick={onSwitchToLogin}
-              >
-                Sign In
-              </button>
+            <button type="submit" className="btn btn-primary btn-lg auth-submit" disabled={isLoading}>
+              {isLoading ? 'Mendaftar...' : 'Daftar'}
+            </button>
+
+            <p className="auth-switch">
+              Sudah punya akun? <Link to="/login">Masuk</Link>
             </p>
-          </div>
+
+            <Link to="/" className="auth-back">← Kembali ke beranda</Link>
+          </form>
         </div>
       </div>
     </div>

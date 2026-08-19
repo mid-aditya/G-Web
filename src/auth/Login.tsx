@@ -1,110 +1,80 @@
-import { useEffect, useRef, useState } from 'react'
-import '../App.css'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
+import { useAuthStore } from '../stores/authStore'
+import './Auth.css'
 
-interface LoginProps {
-  onClose: () => void
-  onSwitchToRegister: () => void
-}
+const Login = () => {
+  const navigate = useNavigate()
+  const { login } = useAuthStore()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-const Login = ({ onClose, onSwitchToRegister }: LoginProps) => {
-  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 })
-  const [facePos, setFacePos] = useState({ x: 0, y: 0 })
-  const pageRef = useRef<HTMLDivElement>(null)
-  const faceRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setCursorPos({ x: e.clientX, y: e.clientY })
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    try {
+      await login(email, password)
+      toast.success('Selamat datang kembali!')
+      navigate('/')
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Login gagal')
+    } finally {
+      setIsLoading(false)
     }
-
-    window.addEventListener('mousemove', handleMouseMove)
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!pageRef.current || !faceRef.current) return
-
-    const pageRect = pageRef.current.getBoundingClientRect()
-    const pageCenterX = pageRect.left + pageRect.width / 2
-    const pageCenterY = pageRect.top + pageRect.height / 2
-
-    const deltaX = cursorPos.x - pageCenterX
-    const deltaY = cursorPos.y - pageCenterY
-    const maxDistance = 100
-
-    const moveX = Math.min(deltaX * 0.15, maxDistance)
-    const moveY = Math.min(deltaY * 0.15, maxDistance)
-
-    setFacePos({ x: moveX, y: moveY })
-  }, [cursorPos])
+  }
 
   return (
-    <div className="app">
-      <div className="auth-page" ref={pageRef}>
-        <button className="auth-close" onClick={onClose}>×</button>
-        
-        {/* Face Follow Cursor */}
-        <div 
-          className="face-mascot" 
-          ref={faceRef}
-          style={{
-            transform: `translate(${facePos.x}px, ${facePos.y}px)`
-          }}
-        >
-          <div className="face">
-            <div className="face-eyes">
-              <div className="eye">
-                <div className="pupil" style={{
-                  transform: `translate(${facePos.x * 0.3}px, ${facePos.y * 0.3}px)`
-                }}></div>
-              </div>
-              <div className="eye">
-                <div className="pupil" style={{
-                  transform: `translate(${facePos.x * 0.3}px, ${facePos.y * 0.3}px)`
-                }}></div>
-              </div>
-            </div>
-            <div className="face-mouth"></div>
+    <div className="auth-page">
+      <div className="auth-container">
+        <div className="auth-left">
+          <div className="auth-brand">
+            <span className="logo-mark">+</span>
+            <span className="logo-text">SETSUKO</span>
           </div>
+          <h1>Selamat Datang<br />Kembali</h1>
+          <p>Masuk ke akun Anda untuk melanjutkan belanja</p>
         </div>
 
-        <div className="auth-body">
-          <h2 className="auth-title">Welcome Back!</h2>
-          <p className="auth-subtitle">Sign in to continue</p>
+        <div className="auth-right">
+          <form onSubmit={handleSubmit} className="auth-form">
+            <h2>Masuk</h2>
 
-          <form className="auth-form">
             <div className="form-group">
               <label>Email</label>
-              <input type="email" placeholder="Enter your email" />
+              <input
+                type="email"
+                className="input"
+                placeholder="email@contoh.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
+
             <div className="form-group">
               <label>Password</label>
-              <input type="password" placeholder="Enter your password" />
+              <input
+                type="password"
+                className="input"
+                placeholder="Masukkan password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
-            <div className="form-options">
-              <label className="checkbox-label">
-                <input type="checkbox" />
-                <span>Remember me</span>
-              </label>
-              <a href="#forgot" className="forgot-link">Forgot password?</a>
-            </div>
-            <button type="submit" className="btn-submit">Sign In</button>
-          </form>
 
-          <div className="auth-footer">
-            <p>
-              Don't have an account?{' '}
-              <button 
-                className="link-button"
-                onClick={onSwitchToRegister}
-              >
-                Sign Up
-              </button>
+            <button type="submit" className="btn btn-primary btn-lg auth-submit" disabled={isLoading}>
+              {isLoading ? 'Masuk...' : 'Masuk'}
+            </button>
+
+            <p className="auth-switch">
+              Belum punya akun? <Link to="/register">Daftar</Link>
             </p>
-          </div>
+
+            <Link to="/" className="auth-back">← Kembali ke beranda</Link>
+          </form>
         </div>
       </div>
     </div>
