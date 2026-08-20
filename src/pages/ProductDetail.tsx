@@ -114,7 +114,34 @@ const ProductDetail = () => {
       <div className="product-detail-page">
         <Navbar />
         <div className="container" style={{ paddingTop: '120px' }}>
-          <div className="product-detail-loading">Memuat produk...</div>
+          <div className="product-detail-layout">
+            <div className="product-detail-image">
+              <div className="skeleton skeleton-image" />
+            </div>
+            <div className="product-detail-info">
+              <div className="product-detail-header">
+                <div className="skeleton skeleton-text short" style={{ height: '0.75rem' }} />
+                <div className="skeleton skeleton-text" style={{ height: '2rem', marginBottom: '1rem' }} />
+                <div className="skeleton skeleton-text medium" style={{ height: '1.5rem' }} />
+              </div>
+              <div className="product-detail-section">
+                <div className="skeleton skeleton-text short" style={{ height: '0.875rem', marginBottom: '1rem' }} />
+                <div className="flex gap-1">
+                  <div className="skeleton" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+                  <div className="skeleton" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+                </div>
+              </div>
+              <div className="product-detail-section">
+                <div className="skeleton skeleton-text short" style={{ height: '0.875rem', marginBottom: '1rem' }} />
+                <div className="flex gap-1">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="skeleton" style={{ width: '48px', height: '40px' }} />
+                  ))}
+                </div>
+              </div>
+              <div className="skeleton" style={{ width: '100%', height: '48px', marginTop: '1.5rem' }} />
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -145,9 +172,13 @@ const ProductDetail = () => {
 
         <div className="product-detail-layout">
           <div className="product-detail-image">
-            <div className="product-detail-image-placeholder">
-              <span>{product.name.charAt(0)}</span>
-            </div>
+            {product.baseImage ? (
+              <img src={product.baseImage} alt={product.name} className="product-detail-img" />
+            ) : (
+              <div className="product-detail-image-placeholder">
+                <span>{product.name.charAt(0)}</span>
+              </div>
+            )}
             {product.discount > 0 && (
               <span className="product-card-badge">{product.discount}% OFF</span>
             )}

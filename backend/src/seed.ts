@@ -61,7 +61,7 @@ async function main() {
       description: 'Kaos oversized dengan bahan cotton combed 30s yang nyaman. Cocok untuk daily wear dengan potongan loose yang trendy.',
       price: 149000,
       discount: 0,
-      baseImage: '/placeholder/kaos-oversize.jpg',
+      baseImage: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=600&fit=crop',
       categorySlug: 'kaos',
       isFeatured: true,
       variants: [
@@ -81,7 +81,7 @@ async function main() {
       description: 'Kemeja flannel dengan motif kotak-kotak klasik. Bahan flannel tebal dan lembut, cocok untuk cuaca dingin.',
       price: 259000,
       discount: 10,
-      baseImage: '/placeholder/kemeja-flannel.jpg',
+      baseImage: 'https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&h=600&fit=crop',
       categorySlug: 'kemeja',
       isFeatured: true,
       variants: [
@@ -99,7 +99,7 @@ async function main() {
       description: 'Celana cargo dengan banyak pockets untuk kepraktisan. Bahan ripstop yang kuat dan ringan.',
       price: 299000,
       discount: 0,
-      baseImage: '/placeholder/celana-cargo.jpg',
+      baseImage: 'https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=500&h=600&fit=crop',
       categorySlug: 'celana',
       isFeatured: true,
       variants: [
@@ -119,7 +119,7 @@ async function main() {
       description: 'Jaket bomber dengan bahan satin yang mengkilap. Lining dalam berbahan mesh untuk kenyamanan.',
       price: 459000,
       discount: 15,
-      baseImage: '/placeholder/jaket-bomber.jpg',
+      baseImage: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&h=600&fit=crop',
       categorySlug: 'jaket',
       isFeatured: true,
       variants: [
@@ -137,7 +137,7 @@ async function main() {
       description: 'Kaos dengan grafis unik di bagian depan. Sablon DTG kualitas tinggi yang tidak mudah luntur.',
       price: 179000,
       discount: 0,
-      baseImage: '/placeholder/kaos-graphic.jpg',
+      baseImage: 'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=500&h=600&fit=crop',
       categorySlug: 'kaos',
       isFeatured: false,
       variants: [
@@ -153,7 +153,7 @@ async function main() {
       description: 'Dress casual dari bahan linen yang sejuk. Potongan A-line yang flattering untuk semua body type.',
       price: 349000,
       discount: 5,
-      baseImage: '/placeholder/dress-linen.jpg',
+      baseImage: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500&h=600&fit=crop',
       categorySlug: 'dress',
       isFeatured: true,
       variants: [
@@ -171,7 +171,7 @@ async function main() {
       description: 'Kemeja linen dengan potongan oversized yang effortless. Cocok untuk tampilan kasual-chic.',
       price: 289000,
       discount: 0,
-      baseImage: '/placeholder/kemeja-linen.jpg',
+      baseImage: 'https://images.unsplash.com/photo-1598032895397-b9472444bf93?w=500&h=600&fit=crop',
       categorySlug: 'kemeja',
       isFeatured: false,
       variants: [
@@ -189,7 +189,7 @@ async function main() {
       description: 'Celana chino dengan potongan slim fit yang modern. Bahan cotton twill yang stretch dan nyaman.',
       price: 249000,
       discount: 0,
-      baseImage: '/placeholder/celana-chino.jpg',
+      baseImage: 'https://images.unsplash.com/photo-1473966968600-fa801b869a1a?w=500&h=600&fit=crop',
       categorySlug: 'celana',
       isFeatured: false,
       variants: [
@@ -209,7 +209,7 @@ async function main() {
       description: 'Jaket denim klasik yang timeless. Bahan denim ringan dengan washed finish.',
       price: 399000,
       discount: 0,
-      baseImage: '/placeholder/jaket-denim.jpg',
+      baseImage: 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=500&h=600&fit=crop',
       categorySlug: 'jaket',
       isFeatured: false,
       variants: [
@@ -224,7 +224,7 @@ async function main() {
       description: 'Tas tote dari bahan canvas tebal. Cocok untuk belanja atau bawa barang sehari-hari.',
       price: 89000,
       discount: 0,
-      baseImage: '/placeholder/tas-tote.jpg',
+      baseImage: 'https://images.unsplash.com/photo-1544816155-12df9643f363?w=500&h=600&fit=crop',
       categorySlug: 'aksesoris',
       isFeatured: false,
       variants: [
@@ -240,7 +240,13 @@ async function main() {
 
     await prisma.product.upsert({
       where: { slug: product.slug },
-      update: {},
+      update: {
+        baseImage: productData.baseImage,
+        price: productData.price,
+        discount: productData.discount,
+        description: productData.description,
+        isFeatured: productData.isFeatured,
+      },
       create: {
         ...productData,
         category: { connect: { id: categoryMap[categorySlug] } },

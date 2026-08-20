@@ -146,9 +146,13 @@ const Home = () => {
                 return (
                   <Link to={`/product/${product.slug}`} key={product.id} className="product-card">
                     <div className="product-card-image">
-                      <div className="product-card-placeholder">
-                        <span>{product.name.charAt(0)}</span>
-                      </div>
+                      {product.baseImage ? (
+                        <img src={product.baseImage} alt={product.name} className="product-card-img" loading="lazy" />
+                      ) : (
+                        <div className="product-card-placeholder">
+                          <span>{product.name.charAt(0)}</span>
+                        </div>
+                      )}
                       {product.discount > 0 && (
                         <span className="product-card-badge">{product.discount}% OFF</span>
                       )}

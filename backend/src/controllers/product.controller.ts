@@ -55,7 +55,7 @@ export const getProducts = async (req: Request, res: Response) => {
       switch (sort) {
         case 'price_asc': return { price: 'asc' as const }
         case 'price_desc': return { price: 'desc' as const }
-        case 'popular': return { orderItems: { _count: 'desc' } }
+        case 'popular': return { createdAt: 'desc' as const }
         default: return { createdAt: 'desc' as const }
       }
     })()
@@ -76,7 +76,7 @@ export const getProducts = async (req: Request, res: Response) => {
             select: { size: true, color: true, colorHex: true, stock: true },
           },
           images: { orderBy: { sortOrder: 'asc' } },
-          _count: { select: { orderItems: true, reviews: true } },
+          _count: { select: { reviews: true } },
         },
       }),
       prisma.product.count({ where }),
@@ -91,7 +91,7 @@ export const getProducts = async (req: Request, res: Response) => {
       totalStock: product.variants.reduce((sum, v) => sum + v.stock, 0),
       rating: 0, // Calculate from reviews if needed
       reviewCount: product._count.reviews,
-      orderCount: product._count.orderItems,
+      orderCount: 0,
     }))
 
     res.json({
@@ -111,7 +111,7 @@ export const getProducts = async (req: Request, res: Response) => {
 
 export const getProduct = async (req: Request, res: Response) => {
   try {
-    const { slug } = req.params
+    const slug = req.params.slug as string
 
     const product = await prisma.product.findUnique({
       where: { slug },
@@ -126,7 +126,7 @@ export const getProduct = async (req: Request, res: Response) => {
           orderBy: { createdAt: 'desc' },
           include: { user: { select: { id: true, name: true, avatar: true } } },
         },
-        _count: { select: { orderItems: true, reviews: true } },
+        _count: { select: { reviews: true } },
       },
     })
 
@@ -144,7 +144,7 @@ export const getProduct = async (req: Request, res: Response) => {
       colors: [...new Set(product.variants.map((v) => v.color))],
       totalStock: product.variants.reduce((sum, v) => sum + v.stock, 0),
       rating: Math.round(avgRating * 10) / 10,
-      orderCount: product._count.orderItems,
+      orderCount: 0,
     })
   } catch (error) {
     console.error('Get product error:', error)
@@ -200,7 +200,7 @@ export const createProduct = async (req: Request, res: Response) => {
 
 export const updateProduct = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const { name, description, price, discount, categoryId, isFeatured, isActive, baseImage } = req.body
 
     const product = await prisma.product.update({
@@ -232,7 +232,7 @@ export const updateProduct = async (req: Request, res: Response) => {
 
 export const deleteProduct = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     await prisma.product.delete({ where: { id } })
     res.json({ message: 'Produk berhasil dihapus' })
   } catch (error) {

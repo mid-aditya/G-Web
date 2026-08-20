@@ -89,7 +89,6 @@ export const getAllProducts = async (req: Request, res: Response) => {
         include: {
           category: { select: { id: true, name: true } },
           variants: { select: { stock: true } },
-          _count: { select: { orderItems: true } },
         },
       }),
       prisma.product.count({ where }),
@@ -98,7 +97,7 @@ export const getAllProducts = async (req: Request, res: Response) => {
     const transformed = products.map((p) => ({
       ...p,
       totalStock: p.variants.reduce((sum, v) => sum + v.stock, 0),
-      soldCount: p._count.orderItems,
+      soldCount: 0,
     }))
 
     res.json({
@@ -162,7 +161,7 @@ export const getAllOrders = async (req: Request, res: Response) => {
 
 export const updateOrderStatus = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const { status } = req.body
 
     const validStatuses = ['PENDING', 'PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED', 'REFUNDED']

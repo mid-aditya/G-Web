@@ -170,7 +170,7 @@ export const getOrders = async (req: Request, res: Response) => {
 
 export const getOrder = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
 
     const order = await prisma.order.findFirst({
       where: { id, userId: req.user!.userId },
@@ -277,7 +277,7 @@ export const handleMidtransCallback = async (req: Request, res: Response) => {
 
 export const cancelOrder = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
 
     const order = await prisma.order.findFirst({
       where: { id, userId: req.user!.userId },

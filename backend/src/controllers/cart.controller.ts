@@ -118,7 +118,7 @@ export const addToCart = async (req: Request, res: Response) => {
 
 export const updateCartItem = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
     const { quantity } = req.body
 
     const cartItem = await prisma.cartItem.findUnique({
@@ -177,7 +177,7 @@ export const updateCartItem = async (req: Request, res: Response) => {
 
 export const removeFromCart = async (req: Request, res: Response) => {
   try {
-    const { id } = req.params
+    const id = req.params.id as string
 
     const cartItem = await prisma.cartItem.findUnique({ where: { id } })
     if (!cartItem || cartItem.userId !== req.user!.userId) {
