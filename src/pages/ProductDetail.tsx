@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar'
 import SEO from '../components/SEO'
 import Footer from '../components/Footer'
 import Reviews from '../components/Reviews'
+import WishlistButton from '../components/WishlistButton'
 import { formatCurrency } from '../lib/utils'
 import { useCartStore } from '../stores/cartStore'
 import { useAuthStore } from '../stores/authStore'
@@ -214,6 +215,9 @@ const ProductDetail = () => {
             {product.discount > 0 && (
               <span className="product-card-badge">{product.discount}% OFF</span>
             )}
+            <div className="wishlist-btn-wrapper">
+              <WishlistButton productId={product.id} size={20} />
+            </div>
           </div>
 
           <div className="product-detail-info">

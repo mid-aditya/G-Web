@@ -16,6 +16,7 @@ const Checkout = lazy(() => import('./pages/Checkout'))
 const Account = lazy(() => import('./pages/Account'))
 const Orders = lazy(() => import('./pages/Orders'))
 const Admin = lazy(() => import('./pages/Admin'))
+const Wishlist = lazy(() => import('./pages/Wishlist'))
 const Login = lazy(() => import('./auth/Login'))
 const Register = lazy(() => import('./auth/Register'))
 const NotFound = lazy(() => import('./pages/404'))
@@ -69,6 +70,7 @@ function App() {
               <Route path="/product/:slug" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
+              <Route path="/wishlist" element={<Wishlist />} />
               <Route path="/account" element={<Account />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/admin" element={<Admin />} />

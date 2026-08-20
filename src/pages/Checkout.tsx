@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { FiPlus, FiCheck } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 import Navbar from '../components/Navbar'
 import SEO from '../components/SEO'
 import { formatCurrency } from '../lib/utils'
 import { useCartStore } from '../stores/cartStore'
 import { useAuthStore } from '../stores/authStore'
+import { useAddressStore } from '../stores/addressStore'
 import api from '../lib/api'
 import './Checkout.css'
 
@@ -13,8 +15,17 @@ const Checkout = () => {
   const navigate = useNavigate()
   const { user } = useAuthStore()
   const { items, total } = useCartStore()
+  const {
+    addresses,
+    selectedAddressId,
+    selectAddress,
+    fetchAddresses,
+    addAddress,
+  } = useAddressStore()
+
   const [isProcessing, setIsProcessing] = useState(false)
-  const [address, setAddress] = useState({
+  const [showNewAddress, setShowNewAddress] = useState(false)
+  const [newAddress, setNewAddress] = useState({
     label: 'Rumah',
     name: user?.name || '',
     phone: user?.phone || '',
@@ -30,6 +41,10 @@ const Checkout = () => {
     }
   }, [items, navigate])
 
+  useEffect(() => {
+    fetchAddresses()
+  }, [fetchAddresses])
+
   const shippingCost = total >= 500000 ? 0 : 15000
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,21 +52,28 @@ const Checkout = () => {
     setIsProcessing(true)
 
     try {
-      // Create address first
-      const { data: addressData } = await api.post('/auth/addresses', {
-        ...address,
-        isDefault: true,
-      })
+      let addressId = selectedAddressId
+
+      // If using new address, create it first
+      if (showNewAddress && !addressId) {
+        const saved = await addAddress({ ...newAddress, isDefault: addresses.length === 0 })
+        addressId = saved.id
+      }
+
+      if (!addressId) {
+        toast.error('Pilih alamat pengiriman')
+        setIsProcessing(false)
+        return
+      }
 
       // Create order
       const { data } = await api.post('/orders', {
-        addressId: addressData.id,
+        addressId,
         paymentMethod: 'midtrans',
         notes: '',
       })
 
       if (data.order?.midtransToken || data.order?.paymentUrl) {
-        // Redirect to Midtrans payment page
         if (data.order.paymentUrl) {
           window.location.href = data.order.paymentUrl
         }
@@ -75,77 +97,128 @@ const Checkout = () => {
           <h1>Checkout</h1>
         </div>
 
-        <div className="checkout-layout">
-          <form onSubmit={handleSubmit} className="checkout-form">
+        <form onSubmit={handleSubmit} className="checkout-layout">
+          <div className="checkout-form">
+            {/* Address Selection */}
             <div className="checkout-section">
               <h3>Alamat Pengiriman</h3>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Nama Lengkap</label>
-                  <input
-                    type="text"
-                    className="input"
-                    value={address.name}
-                    onChange={(e) => setAddress({ ...address, name: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>No. Telepon</label>
-                  <input
-                    type="tel"
-                    className="input"
-                    value={address.phone}
-                    onChange={(e) => setAddress({ ...address, phone: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
+              {addresses.length > 0 && !showNewAddress && (
+                <div className="address-selection">
+                  {addresses.map((addr) => (
+                    <label
+                      key={addr.id}
+                      className={`address-option ${selectedAddressId === addr.id ? 'selected' : ''}`}
+                    >
+                      <input
+                        type="radio"
+                        name="address"
+                        value={addr.id}
+                        checked={selectedAddressId === addr.id}
+                        onChange={() => selectAddress(addr.id)}
+                      />
+                      <div className="address-option-content">
+                        <div className="address-option-header">
+                          <span className="address-option-label">{addr.label}</span>
+                          {addr.isDefault && <span className="address-default-badge"><FiCheck size={10} /> Utama</span>}
+                        </div>
+                        <p className="address-option-name">{addr.name} · {addr.phone}</p>
+                        <p className="address-option-text">{addr.address}, {addr.city}, {addr.province} {addr.zipCode}</p>
+                      </div>
+                    </label>
+                  ))}
 
-              <div className="form-group">
-                <label>Alamat Lengkap</label>
-                <textarea
-                  className="input"
-                  rows={3}
-                  value={address.address}
-                  onChange={(e) => setAddress({ ...address, address: e.target.value })}
-                  required
-                />
-              </div>
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => setShowNewAddress(true)}
+                  >
+                    <FiPlus size={14} /> Gunakan Alamat Baru
+                  </button>
+                </div>
+              )}
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Kota</label>
-                  <input
-                    type="text"
-                    className="input"
-                    value={address.city}
-                    onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                    required
-                  />
+              {(addresses.length === 0 || showNewAddress) && (
+                <div className="new-address-form">
+                  {addresses.length > 0 && (
+                    <button
+                      type="button"
+                      className="btn btn-ghost btn-sm"
+                      onClick={() => setShowNewAddress(false)}
+                      style={{ marginBottom: '1rem' }}
+                    >
+                      ← Kembali ke alamat tersimpan
+                    </button>
+                  )}
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Nama Lengkap</label>
+                      <input
+                        type="text"
+                        className="input"
+                        value={newAddress.name}
+                        onChange={(e) => setNewAddress({ ...newAddress, name: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>No. Telepon</label>
+                      <input
+                        type="tel"
+                        className="input"
+                        value={newAddress.phone}
+                        onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Alamat Lengkap</label>
+                    <textarea
+                      className="input"
+                      rows={3}
+                      value={newAddress.address}
+                      onChange={(e) => setNewAddress({ ...newAddress, address: e.target.value })}
+                      required
+                    />
+                  </div>
+
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label>Kota</label>
+                      <input
+                        type="text"
+                        className="input"
+                        value={newAddress.city}
+                        onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Provinsi</label>
+                      <input
+                        type="text"
+                        className="input"
+                        value={newAddress.province}
+                        onChange={(e) => setNewAddress({ ...newAddress, province: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label>Kode Pos</label>
+                      <input
+                        type="text"
+                        className="input"
+                        value={newAddress.zipCode}
+                        onChange={(e) => setNewAddress({ ...newAddress, zipCode: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="form-group">
-                  <label>Provinsi</label>
-                  <input
-                    type="text"
-                    className="input"
-                    value={address.province}
-                    onChange={(e) => setAddress({ ...address, province: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Kode Pos</label>
-                  <input
-                    type="text"
-                    className="input"
-                    value={address.zipCode}
-                    onChange={(e) => setAddress({ ...address, zipCode: e.target.value })}
-                    required
-                  />
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="checkout-section">
@@ -164,11 +237,11 @@ const Checkout = () => {
             <button
               type="submit"
               className="btn btn-primary btn-lg checkout-submit"
-              disabled={isProcessing}
+              disabled={isProcessing || (!selectedAddressId && !showNewAddress)}
             >
               {isProcessing ? 'Memproses...' : 'Bayar Sekarang'}
             </button>
-          </form>
+          </div>
 
           <div className="checkout-summary">
             <h3>Ringkasan Pesanan</h3>
@@ -209,7 +282,7 @@ const Checkout = () => {
               <span>{formatCurrency(total + shippingCost)}</span>
             </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   )

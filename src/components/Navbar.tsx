@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { FiSearch, FiUser, FiShoppingBag, FiMenu, FiX } from 'react-icons/fi'
+import { FiSearch, FiUser, FiShoppingBag, FiMenu, FiX, FiHeart } from 'react-icons/fi'
 import { useAuthStore } from '../stores/authStore'
 import { useCartStore } from '../stores/cartStore'
 import './Navbar.css'
@@ -53,6 +53,9 @@ const Navbar = () => {
               <FiSearch size={18} />
             </button>
             {isAuthenticated ? (
+              <Link to="/wishlist" className="navbar-icon-btn" aria-label="Wishlist"><FiHeart size={18} /></Link>
+            ) : null}
+            {isAuthenticated ? (
               <Link to="/account" className="navbar-icon-btn" aria-label="Account"><FiUser size={18} /></Link>
             ) : (
               <Link to="/login" className="navbar-icon-btn" aria-label="Login"><FiUser size={18} /></Link>
@@ -84,6 +87,7 @@ const Navbar = () => {
           <div className="mobile-menu-divider" />
           {isAuthenticated ? (
             <>
+              <Link to="/wishlist" className="mobile-link" onClick={() => setIsMenuOpen(false)}>Favorit Saya</Link>
               <Link to="/account" className="mobile-link" onClick={() => setIsMenuOpen(false)}>Akun Saya</Link>
               <Link to="/orders" className="mobile-link" onClick={() => setIsMenuOpen(false)}>Pesanan Saya</Link>
               {user?.role === 'ADMIN' && <Link to="/admin" className="mobile-link" onClick={() => setIsMenuOpen(false)}>Panel Admin</Link>}
