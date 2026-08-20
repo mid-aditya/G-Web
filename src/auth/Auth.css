@@ -104,6 +104,38 @@
 
 .auth-back:hover { color: var(--text-primary); }
 
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border-light);
+}
+
+.auth-divider span {
+  font-size: 0.8rem;
+  color: var(--text-quaternary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.google-btn-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.google-btn-wrapper iframe {
+  width: 100% !important;
+}
+
 @media (max-width: 768px) {
   .auth-container { grid-template-columns: 1fr; }
   .auth-left { display: none; }

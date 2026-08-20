@@ -65,7 +65,31 @@ const Cart = () => {
         </div>
 
         {isLoading ? (
-          <div className="cart-loading">Memuat keranjang...</div>
+          <div className="cart-layout">
+            <div className="cart-items">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="cart-item">
+                  <div className="skeleton" style={{ width: 120, height: 160, flexShrink: 0 }} />
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div className="skeleton skeleton-text medium" style={{ height: '1rem' }} />
+                    <div className="skeleton skeleton-text short" style={{ height: '0.875rem' }} />
+                    <div style={{ marginTop: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div className="skeleton" style={{ width: 100, height: 32 }} />
+                      <div className="skeleton" style={{ width: 80, height: '1rem' }} />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="cart-summary">
+              <div className="skeleton skeleton-text" style={{ height: '1.25rem', marginBottom: '1.5rem' }} />
+              <div className="skeleton skeleton-text" style={{ height: '1rem', marginBottom: '0.75rem' }} />
+              <div className="skeleton skeleton-text medium" style={{ height: '1rem', marginBottom: '0.75rem' }} />
+              <div className="skeleton" style={{ width: '100%', height: 1, margin: '1rem 0' }} />
+              <div className="skeleton skeleton-text" style={{ height: '1.25rem', marginBottom: '1.5rem' }} />
+              <div className="skeleton" style={{ width: '100%', height: 48 }} />
+            </div>
+          </div>
         ) : items.length === 0 ? (
           <div className="cart-empty-state">
             <FiShoppingBag size={48} strokeWidth={1} />
@@ -83,9 +107,13 @@ const Cart = () => {
                 return (
                   <div key={item.id} className="cart-item">
                     <Link to={`/product/${item.variant.product.slug}`} className="cart-item-image">
-                      <div className="cart-item-placeholder">
-                        <span>{item.variant.product.name.charAt(0)}</span>
-                      </div>
+                      {item.variant.product.baseImage ? (
+                        <img src={item.variant.product.baseImage} alt={item.variant.product.name} className="product-card-img" />
+                      ) : (
+                        <div className="cart-item-placeholder">
+                          <span>{item.variant.product.name.charAt(0)}</span>
+                        </div>
+                      )}
                     </Link>
 
                     <div className="cart-item-info">

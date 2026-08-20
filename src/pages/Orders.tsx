@@ -68,7 +68,34 @@ const Orders = () => {
 
           <main className="account-main">
             {loadingOrders ? (
-              <p>Memuat pesanan...</p>
+              <div className="orders-list">
+                {[1, 2].map(i => (
+                  <div key={i} className="order-card">
+                    <div className="order-header">
+                      <div>
+                        <div className="skeleton skeleton-text short" style={{ height: '0.875rem', marginBottom: '0.375rem' }} />
+                        <div className="skeleton skeleton-text" style={{ height: '0.75rem', width: 100 }} />
+                      </div>
+                      <div className="skeleton skeleton-text" style={{ height: '0.875rem', width: 80 }} />
+                    </div>
+                    <div className="order-items">
+                      {[1].map(j => (
+                        <div key={j} className="order-item">
+                          <div className="skeleton" style={{ width: 56, height: 56, flexShrink: 0 }} />
+                          <div style={{ flex: 1 }}>
+                            <div className="skeleton skeleton-text medium" style={{ height: '0.875rem', marginBottom: '0.375rem' }} />
+                            <div className="skeleton skeleton-text short" style={{ height: '0.75rem' }} />
+                          </div>
+                          <div className="skeleton skeleton-text" style={{ height: '0.875rem', width: 80 }} />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="order-footer">
+                      <div className="skeleton skeleton-text" style={{ height: '1rem', width: 120 }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
             ) : orders.length === 0 ? (
               <div className="orders-empty">
                 <p>Belum ada pesanan</p>
@@ -90,7 +117,11 @@ const Orders = () => {
                       {order.items.map(item => (
                         <div key={item.id} className="order-item">
                           <div className="order-item-image">
-                            <span>{item.variant.product.name.charAt(0)}</span>
+                            {item.variant.product.baseImage ? (
+                              <img src={item.variant.product.baseImage} alt={item.variant.product.name} className="product-card-img" style={{ borderRadius: 0 }} />
+                            ) : (
+                              <span>{item.variant.product.name.charAt(0)}</span>
+                            )}
                           </div>
                           <div>
                             <p className="order-item-name">{item.variant.product.name}</p>

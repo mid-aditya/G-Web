@@ -1,7 +1,10 @@
 import { Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
+import { OAuth2Client } from 'google-auth-library'
 import prisma from '../config/database.js'
 import { generateToken } from '../utils/jwt.js'
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 export const register = async (req: Request, res: Response) => {
   try {
@@ -98,6 +101,85 @@ export const login = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Login error:', error)
     res.status(500).json({ error: 'Gagal login' })
+  }
+}
+
+export const googleLogin = async (req: Request, res: Response) => {
+  try {
+    const { credential } = req.body
+
+    if (!credential) {
+      return res.status(400).json({ error: 'Google credential harus diisi' })
+    }
+
+    // Verify the Google ID token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    })
+
+    const payload = ticket.getPayload()
+    if (!payload || !payload.email) {
+      return res.status(400).json({ error: 'Data Google tidak valid' })
+    }
+
+    const { email, name, picture } = payload
+
+    // Find or create user
+    let user = await prisma.user.findUnique({
+      where: { email },
+      include: { role: true },
+    })
+
+    if (!user) {
+      // Create new user with random password
+      const randomPassword = await bcrypt.hash(Math.random().toString(36).slice(2), 12)
+      user = await prisma.user.create({
+        data: {
+          email,
+          password: randomPassword,
+          name: name || email.split('@')[0],
+          avatar: picture || null,
+          role: { connect: { name: 'CUSTOMER' } },
+        },
+        include: { role: true },
+      })
+    } else if (picture && user.avatar !== picture) {
+      // Update avatar if changed
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { avatar: picture },
+        include: { role: true },
+      })
+    }
+
+    const token = generateToken({
+      userId: user.id,
+      email: user.email,
+      role: user.role.name,
+    })
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    })
+
+    res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        phone: user.phone,
+        role: user.role.name,
+        avatar: user.avatar,
+      },
+      token,
+    })
+  } catch (error) {
+    console.error('Google login error:', error)
+    res.status(500).json({ error: 'Gagal login dengan Google' })
   }
 }
 

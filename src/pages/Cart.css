@@ -58,6 +58,7 @@
   flex-shrink: 0;
   background: var(--bg-secondary);
   text-decoration: none;
+  overflow: hidden;
 }
 
 .cart-item-placeholder {

@@ -41,7 +41,40 @@ const Account = () => {
     navigate('/')
   }
 
-  if (isLoading || !user) return null
+  if (isLoading || !user) {
+    return (
+      <div className="account-page">
+        <Navbar />
+        <div className="container">
+          <div className="account-header">
+            <div className="skeleton skeleton-text" style={{ height: '2rem', width: 200 }} />
+          </div>
+          <div className="account-layout">
+            <aside className="account-sidebar">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="skeleton" style={{ width: '100%', height: 36 }} />
+                ))}
+              </div>
+            </aside>
+            <main className="account-main">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                <div className="skeleton skeleton-text" style={{ height: '1.25rem', width: 150 }} />
+                {[1, 2, 3].map(i => (
+                  <div key={i}>
+                    <div className="skeleton skeleton-text short" style={{ height: '0.75rem', marginBottom: '0.5rem' }} />
+                    <div className="skeleton" style={{ width: '100%', height: 44 }} />
+                  </div>
+                ))}
+                <div className="skeleton" style={{ width: 160, height: 44 }} />
+              </div>
+            </main>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
 
   return (
     <div className="account-page">

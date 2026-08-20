@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '../stores/authStore'
@@ -6,10 +6,11 @@ import './Auth.css'
 
 const Login = () => {
   const navigate = useNavigate()
-  const { login } = useAuthStore()
+  const { login, googleLogin } = useAuthStore()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const googleBtnRef = useRef<HTMLDivElement>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -24,6 +25,36 @@ const Login = () => {
       setIsLoading(false)
     }
   }
+
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
+    if (!clientId || !window.google?.accounts?.id) return
+
+    window.google.accounts.id.initialize({
+      client_id: clientId,
+      callback: async (response: any) => {
+        setIsLoading(true)
+        try {
+          await googleLogin(response.credential)
+          toast.success('Selamat datang!')
+          navigate('/')
+        } catch (err: any) {
+          toast.error(err.response?.data?.error || 'Login Google gagal')
+        } finally {
+          setIsLoading(false)
+        }
+      },
+    })
+
+    if (googleBtnRef.current) {
+      window.google.accounts.id.renderButton(googleBtnRef.current, {
+        theme: 'outline',
+        size: 'large',
+        width: '100%',
+        text: 'continue_with',
+      })
+    }
+  }, [googleLogin, navigate])
 
   return (
     <div className="auth-page">
@@ -68,6 +99,12 @@ const Login = () => {
             <button type="submit" className="btn btn-primary btn-lg auth-submit" disabled={isLoading}>
               {isLoading ? 'Masuk...' : 'Masuk'}
             </button>
+
+            <div className="auth-divider">
+              <span>atau</span>
+            </div>
+
+            <div ref={googleBtnRef} className="google-btn-wrapper" />
 
             <p className="auth-switch">
               Belum punya akun? <Link to="/register">Daftar</Link>
