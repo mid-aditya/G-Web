@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { FiSliders, FiX, FiChevronDown } from 'react-icons/fi'
 import Navbar from '../components/Navbar'
+import SEO from '../components/SEO'
 import Footer from '../components/Footer'
 import { formatCurrency } from '../lib/utils'
 import api from '../lib/api'
@@ -116,6 +117,10 @@ const Catalog = () => {
 
   return (
     <div className="catalog-page">
+      <SEO
+        title={currentCategory ? categories.find(c => c.slug === currentCategory)?.name || 'Koleksi' : currentSearch ? `Pencarian: ${currentSearch}` : 'Koleksi'}
+        description="Jelajahi koleksi pakaian SETSUKO. Temukan kaos, kemeja, celana, jaket, dress, dan aksesoris favorit Anda."
+      />
       <Navbar />
 
       <div className="catalog-header">

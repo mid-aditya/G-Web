@@ -3,7 +3,9 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { FiMinus, FiPlus, FiChevronLeft, FiCheck } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 import Navbar from '../components/Navbar'
+import SEO from '../components/SEO'
 import Footer from '../components/Footer'
+import Reviews from '../components/Reviews'
 import { formatCurrency } from '../lib/utils'
 import { useCartStore } from '../stores/cartStore'
 import { useAuthStore } from '../stores/authStore'
@@ -153,8 +155,38 @@ const ProductDetail = () => {
   const discountedPrice = getDiscountedPrice(product.price, product.discount)
   const uniqueColors = product.variants.filter((v, i, arr) => arr.findIndex(x => x.color === v.color) === i)
 
+  const productStructuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    description: product.description || `${product.name} - ${product.category.name}`,
+    image: product.baseImage,
+    brand: { '@type': 'Brand', name: 'SETSUKO' },
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'IDR',
+      price: discountedPrice,
+      availability: product.totalStock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    },
+    category: product.category.name,
+    ...(product.rating > 0 && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: product.rating,
+        reviewCount: product.reviewCount,
+      },
+    }),
+  }
+
   return (
     <div className="product-detail-page">
+      <SEO
+        title={product.name}
+        description={product.description || `${product.name} - ${product.category.name}. Harga ${formatCurrency(discountedPrice)}`}
+        image={product.baseImage}
+        type="product"
+        structuredData={productStructuredData}
+      />
       <Navbar />
 
       <div className="container">
@@ -300,6 +332,13 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
+
+        {/* Reviews Section */}
+        <Reviews
+          productId={product.id}
+          rating={product.rating}
+          reviewCount={product.reviewCount}
+        />
       </div>
 
       <Footer />

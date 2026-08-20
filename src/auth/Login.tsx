@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { useAuthStore } from '../stores/authStore'
+import SEO from '../components/SEO'
 import './Auth.css'
 
 const Login = () => {
@@ -58,6 +59,7 @@ const Login = () => {
 
   return (
     <div className="auth-page">
+      <SEO title="Masuk" description="Masuk ke akun SETSUKO Anda" />
       <div className="auth-container">
         <div className="auth-left">
           <div className="auth-brand">

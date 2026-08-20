@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import Navbar from '../components/Navbar'
+import SEO from '../components/SEO'
 import { formatCurrency } from '../lib/utils'
 import { useCartStore } from '../stores/cartStore'
 import { useAuthStore } from '../stores/authStore'
@@ -66,6 +67,7 @@ const Checkout = () => {
 
   return (
     <div className="checkout-page">
+      <SEO title="Checkout" description="Selesaikan pembelian Anda di SETSUKO" />
       <Navbar />
 
       <div className="container">

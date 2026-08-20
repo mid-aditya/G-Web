@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { FiTrash2, FiMinus, FiPlus, FiShoppingBag } from 'react-icons/fi'
 import toast from 'react-hot-toast'
 import Navbar from '../components/Navbar'
+import SEO from '../components/SEO'
 import Footer from '../components/Footer'
 import { formatCurrency } from '../lib/utils'
 import { useCartStore } from '../stores/cartStore'
@@ -42,6 +43,7 @@ const Cart = () => {
   if (!isAuthenticated) {
     return (
       <div className="cart-page">
+        <SEO title="Keranjang Belanja" description="Keranjang belanja Anda di SETSUKO" />
         <Navbar />
         <div className="container cart-empty-state">
           <FiShoppingBag size={48} strokeWidth={1} />
@@ -56,6 +58,7 @@ const Cart = () => {
 
   return (
     <div className="cart-page">
+      <SEO title="Keranjang Belanja" description="Keranjang belanja Anda di SETSUKO" />
       <Navbar />
 
       <div className="container">

@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import SEO from '../components/SEO'
 import './404.css'
 
 const NotFound = () => {
   return (
     <div className="not-found-page">
+      <SEO title="Halaman Tidak Ditemukan" description="Halaman yang Anda cari tidak tersedia" />
       <Navbar />
       <div className="not-found-content">
         <span className="not-found-code">404</span>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import SEO from '../components/SEO'
 import Footer from '../components/Footer'
 import { formatCurrency } from '../lib/utils'
 import api from '../lib/api'
@@ -61,6 +62,10 @@ const Home = () => {
 
   return (
     <div className="home">
+      <SEO
+        title="Beranda"
+        description="SETSUKO - Koleksi pakaian minimalis yang dirancang untuk gaya hidup modern. Bahan premium, potongan sempurna. Gratis ongkir untuk pembelian di atas Rp 500.000."
+      />
       <Navbar />
 
       {/* Hero */}
