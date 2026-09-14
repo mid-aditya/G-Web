@@ -25,6 +25,10 @@ const Checkout = () => {
 
   const [isProcessing, setIsProcessing] = useState(false)
   const [showNewAddress, setShowNewAddress] = useState(false)
+  const [promoCode, setPromoCode] = useState('')
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; name: string; discountAmount: number } | null>(null)
+  const [isValidatingPromo, setIsValidatingPromo] = useState(false)
+  const [activePromos, setActivePromos] = useState<any[]>([])
   const [newAddress, setNewAddress] = useState({
     label: 'Rumah',
     name: user?.name || '',
@@ -45,7 +49,45 @@ const Checkout = () => {
     fetchAddresses()
   }, [fetchAddresses])
 
-  const shippingCost = total >= 500000 ? 0 : 15000
+  useEffect(() => {
+    const fetchPromos = async () => {
+      try {
+        const { data } = await api.get('/promotions/active')
+        setActivePromos(data)
+      } catch {
+        // promo opsional, abaikan jika gagal
+      }
+    }
+    fetchPromos()
+  }, [])
+
+  const discountAmount = appliedPromo?.discountAmount || 0
+  const discountedTotal = Math.max(0, total - discountAmount)
+  const shippingCost = discountedTotal >= 500000 ? 0 : 15000
+
+  const handleApplyPromo = async () => {
+    const code = promoCode.trim()
+    if (!code) return
+    setIsValidatingPromo(true)
+    try {
+      const { data } = await api.post('/promotions/validate', { code, subtotal: total })
+      setAppliedPromo({
+        code: data.promotion.code,
+        name: data.promotion.name,
+        discountAmount: data.discountAmount,
+      })
+      toast.success(`Promo ${data.promotion.code} dipakai`)
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Kode promo tidak valid')
+    } finally {
+      setIsValidatingPromo(false)
+    }
+  }
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null)
+    setPromoCode('')
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -71,6 +113,7 @@ const Checkout = () => {
         addressId,
         paymentMethod: 'midtrans',
         notes: '',
+        promoCode: appliedPromo?.code,
       })
 
       if (data.order?.midtransToken || data.order?.paymentUrl) {
@@ -268,10 +311,67 @@ const Checkout = () => {
 
             <div className="summary-divider" />
 
+            <div className="promo-box">
+              <h4>Kode Promo</h4>
+              {appliedPromo ? (
+                <div className="promo-applied">
+                  <div>
+                    <p className="promo-code">{appliedPromo.code}</p>
+                    <p className="promo-name">{appliedPromo.name}</p>
+                  </div>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={handleRemovePromo}>
+                    Hapus
+                  </button>
+                </div>
+              ) : (
+                <div className="promo-input-row">
+                  <input
+                    type="text"
+                    className="input"
+                    placeholder="Contoh: CANTIK99"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm"
+                    onClick={handleApplyPromo}
+                    disabled={isValidatingPromo || !promoCode.trim()}
+                  >
+                    {isValidatingPromo ? 'Cek...' : 'Pakai'}
+                  </button>
+                </div>
+              )}
+              {activePromos.length > 0 && !appliedPromo && (
+                <div className="promo-list">
+                  {activePromos.slice(0, 4).map((p) => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      className="promo-chip"
+                      onClick={() => {
+                        setPromoCode(p.code)
+                      }}
+                    >
+                      {p.code}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="summary-divider" />
+
             <div className="summary-row">
               <span>Subtotal</span>
               <span>{formatCurrency(total)}</span>
             </div>
+            {discountAmount > 0 && (
+              <div className="summary-row discount">
+                <span>Diskon {appliedPromo?.code}</span>
+                <span>-{formatCurrency(discountAmount)}</span>
+              </div>
+            )}
             <div className="summary-row">
               <span>Pengiriman</span>
               <span>{shippingCost === 0 ? 'GRATIS' : formatCurrency(shippingCost)}</span>
@@ -279,7 +379,7 @@ const Checkout = () => {
             <div className="summary-divider" />
             <div className="summary-row total">
               <span>Total</span>
-              <span>{formatCurrency(total + shippingCost)}</span>
+              <span>{formatCurrency(discountedTotal + shippingCost)}</span>
             </div>
           </div>
         </form>

@@ -8,7 +8,7 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID)
 
 export const register = async (req: Request, res: Response) => {
   try {
-    const { email, password, name, phone } = req.body
+    const { email, password, name, phone, birthDate } = req.body
 
     if (!email || !password || !name) {
       return res.status(400).json({ error: 'Email, password, dan nama harus diisi' })
@@ -27,6 +27,7 @@ export const register = async (req: Request, res: Response) => {
         password: hashedPassword,
         name,
         phone,
+        birthDate: birthDate ? new Date(birthDate) : undefined,
         role: { connect: { name: 'CUSTOMER' } },
       },
       select: { id: true, email: true, name: true, role: true },
@@ -93,6 +94,7 @@ export const login = async (req: Request, res: Response) => {
         email: user.email,
         name: user.name,
         phone: user.phone,
+        birthDate: user.birthDate,
         role: user.role.name,
         avatar: user.avatar,
       },
@@ -172,6 +174,7 @@ export const googleLogin = async (req: Request, res: Response) => {
         email: user.email,
         name: user.name,
         phone: user.phone,
+        birthDate: user.birthDate,
         role: user.role.name,
         avatar: user.avatar,
       },
@@ -197,6 +200,7 @@ export const me = async (req: Request, res: Response) => {
         email: true,
         name: true,
         phone: true,
+        birthDate: true,
         avatar: true,
         role: { select: { name: true } },
         addresses: true,
@@ -216,12 +220,16 @@ export const me = async (req: Request, res: Response) => {
 
 export const updateProfile = async (req: Request, res: Response) => {
   try {
-    const { name, phone } = req.body
+    const { name, phone, birthDate } = req.body
 
     const user = await prisma.user.update({
       where: { id: req.user!.userId },
-      data: { name, phone },
-      select: { id: true, email: true, name: true, phone: true, avatar: true },
+      data: {
+        ...(name !== undefined && { name }),
+        ...(phone !== undefined && { phone }),
+        ...(birthDate !== undefined && { birthDate: birthDate ? new Date(birthDate) : null }),
+      },
+      select: { id: true, email: true, name: true, phone: true, birthDate: true, avatar: true },
     })
 
     res.json(user)

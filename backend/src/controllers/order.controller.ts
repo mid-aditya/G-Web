@@ -1,10 +1,11 @@
 import { Request, Response } from 'express'
 import prisma from '../config/database.js'
 import { createMidtransTransaction, verifyMidtransNotification } from '../utils/midtrans.js'
+import { validatePromotion } from '../utils/promotion.js'
 
 export const createOrder = async (req: Request, res: Response) => {
   try {
-    const { addressId, paymentMethod, notes } = req.body
+    const { addressId, paymentMethod, notes, promoCode } = req.body
 
     // Get cart items
     const cartItems = await prisma.cartItem.findMany({
@@ -37,8 +38,23 @@ export const createOrder = async (req: Request, res: Response) => {
       return sum + Math.round(price) * item.quantity
     }, 0)
 
-    const shippingCost = subtotal >= 500000 ? 0 : 15000 // Free shipping above 500k
-    const total = subtotal + shippingCost
+    // Validate promo (optional)
+    let discountAmount = 0
+    let promotionId: string | undefined
+    let appliedPromoCode: string | undefined
+    if (promoCode) {
+      const result = await validatePromotion(promoCode, subtotal, req.user!.userId)
+      if (!result.valid || !result.promotion) {
+        return res.status(400).json({ error: result.error || 'Kode promo tidak valid' })
+      }
+      discountAmount = result.discountAmount || 0
+      promotionId = result.promotion.id
+      appliedPromoCode = result.promotion.code
+    }
+
+    const discountedSubtotal = Math.max(0, subtotal - discountAmount)
+    const shippingCost = discountedSubtotal >= 500000 ? 0 : 15000 // Free shipping above 500k
+    const total = discountedSubtotal + shippingCost
 
     // Generate order number
     const orderCount = await prisma.order.count()
@@ -51,6 +67,9 @@ export const createOrder = async (req: Request, res: Response) => {
         userId: req.user!.userId,
         addressId,
         subtotal,
+        discountAmount,
+        promoCode: appliedPromoCode,
+        promotionId,
         shippingCost,
         total,
         paymentMethod,
@@ -70,16 +89,33 @@ export const createOrder = async (req: Request, res: Response) => {
       },
     })
 
+    // Bump promo usage
+    if (promotionId) {
+      await prisma.promotion.update({
+        where: { id: promotionId },
+        data: { usedCount: { increment: 1 } },
+      })
+    }
+
     // Create Midtrans transaction
     try {
+      const midtransItems = cartItems.map((item) => ({
+        id: item.variantId,
+        name: `${item.variant.product.name} - ${item.variant.size}/${item.variant.color}`,
+        price: Math.round(item.variant.product.price * (1 - item.variant.product.discount / 100)),
+        quantity: item.quantity,
+      }))
+      if (discountAmount > 0) {
+        midtransItems.push({
+          id: `DISKON-${appliedPromoCode || 'PROMO'}`,
+          name: `Diskon ${appliedPromoCode || 'promo'}`,
+          price: -discountAmount,
+          quantity: 1,
+        })
+      }
       const midtransResult = await createMidtransTransaction({
         orderId: order.id,
-        items: cartItems.map((item) => ({
-          id: item.variantId,
-          name: `${item.variant.product.name} - ${item.variant.size}/${item.variant.color}`,
-          price: Math.round(item.variant.product.price * (1 - item.variant.product.discount / 100)),
-          quantity: item.quantity,
-        })),
+        items: midtransItems,
         customerDetails: {
           firstName: address.name,
           email: req.user!.email,
@@ -148,6 +184,7 @@ export const getOrders = async (req: Request, res: Response) => {
             },
           },
           address: true,
+          promotion: { select: { code: true, name: true } },
         },
       }),
       prisma.order.count({ where }),
@@ -185,6 +222,7 @@ export const getOrder = async (req: Request, res: Response) => {
           },
         },
         address: true,
+          promotion: { select: { code: true, name: true } },
       },
     })
 

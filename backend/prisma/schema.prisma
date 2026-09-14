@@ -15,6 +15,7 @@ model User {
   phone     String?
   roleId    String
   avatar    String?
+  birthDate DateTime?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -130,12 +131,37 @@ model CartItem {
   @@map("cart_items")
 }
 
+model Promotion {
+  id            String       @id @default(uuid())
+  code          String       @unique
+  name          String
+  description   String?      @db.Text
+  discountType  DiscountType @default(PERCENT)
+  discountValue Int
+  minPurchase   Int          @default(0)
+  maxDiscount   Int?
+  startDate     DateTime
+  endDate       DateTime
+  isActive      Boolean      @default(true)
+  usageLimit    Int?
+  usedCount     Int          @default(0)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  orders Order[]
+
+  @@map("promotions")
+}
+
 model Order {
   id            String      @id @default(uuid())
   orderNumber   String      @unique
   userId        String
   addressId     String
   subtotal      Int
+  discountAmount Int        @default(0)
+  promoCode     String?
+  promotionId   String?
   shippingCost  Int         @default(0)
   total         Int
   status        OrderStatus @default(PENDING)
@@ -149,6 +175,7 @@ model Order {
 
   user    User        @relation(fields: [userId], references: [id])
   address Address     @relation(fields: [addressId], references: [id])
+  promotion Promotion? @relation(fields: [promotionId], references: [id])
   items   OrderItem[]
 
   @@map("orders")
@@ -180,6 +207,11 @@ model Review {
 
   @@unique([productId, userId])
   @@map("reviews")
+}
+
+enum DiscountType {
+  PERCENT
+  FIXED
 }
 
 enum OrderStatus {

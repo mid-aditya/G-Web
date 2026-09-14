@@ -6,6 +6,7 @@ interface User {
   email: string
   name: string
   phone?: string
+  birthDate?: string | null
   role: string
   avatar?: string
   addresses?: any[]
@@ -17,10 +18,10 @@ interface AuthState {
   isAuthenticated: boolean
   login: (email: string, password: string) => Promise<void>
   googleLogin: (credential: string) => Promise<void>
-  register: (data: { email: string; password: string; name: string; phone?: string }) => Promise<void>
+  register: (data: { email: string; password: string; name: string; phone?: string; birthDate?: string }) => Promise<void>
   logout: () => Promise<void>
   fetchUser: () => Promise<void>
-  updateProfile: (data: { name: string; phone?: string }) => Promise<void>
+  updateProfile: (data: { name: string; phone?: string; birthDate?: string | null }) => Promise<void>
 }
 
 export const useAuthStore = create<AuthState>((set) => ({

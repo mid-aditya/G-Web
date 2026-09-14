@@ -260,6 +260,110 @@ async function main() {
     })
   }
 
+  // Promotions: tanggal cantik (9.9, 10.10, 11.11, 12.12), custom & ultah
+  const promotions = [
+    {
+      code: 'CANTIK99',
+      name: 'Promo 9.9 Tanggal Cantik',
+      description: 'Diskon 19% spesial 9.9, min. belanja 150rb, maks. diskon 50rb.',
+      discountType: 'PERCENT',
+      discountValue: 19,
+      minPurchase: 150000,
+      maxDiscount: 50000,
+      startDate: new Date('2026-09-09T00:00:00+07:00'),
+      endDate: new Date('2026-09-11T23:59:59+07:00'),
+      isActive: true,
+      usageLimit: 500,
+    },
+    {
+      code: 'CANTIK1010',
+      name: 'Promo 10.10 Tanggal Cantik',
+      description: 'Diskon 20% spesial 10.10, min. belanja 150rb, maks. diskon 60rb.',
+      discountType: 'PERCENT',
+      discountValue: 20,
+      minPurchase: 150000,
+      maxDiscount: 60000,
+      startDate: new Date('2026-10-10T00:00:00+07:00'),
+      endDate: new Date('2026-10-12T23:59:59+07:00'),
+      isActive: true,
+      usageLimit: 500,
+    },
+    {
+      code: 'CANTIK1111',
+      name: 'Promo 11.11 Tanggal Cantik',
+      description: 'Diskon 25% spesial 11.11, min. belanja 200rb, maks. diskon 75rb.',
+      discountType: 'PERCENT',
+      discountValue: 25,
+      minPurchase: 200000,
+      maxDiscount: 75000,
+      startDate: new Date('2026-11-11T00:00:00+07:00'),
+      endDate: new Date('2026-11-13T23:59:59+07:00'),
+      isActive: true,
+      usageLimit: 1000,
+    },
+    {
+      code: 'CANTIK1212',
+      name: 'Promo 12.12 Tanggal Cantik',
+      description: 'Diskon 30% spesial 12.12, min. belanja 200rb, maks. diskon 100rb.',
+      discountType: 'PERCENT',
+      discountValue: 30,
+      minPurchase: 200000,
+      maxDiscount: 100000,
+      startDate: new Date('2026-12-12T00:00:00+07:00'),
+      endDate: new Date('2026-12-14T23:59:59+07:00'),
+      isActive: true,
+      usageLimit: 1000,
+    },
+    {
+      code: 'HEMAT20K',
+      name: 'Potongan Custom 20rb',
+      description: 'Potongan Rp 20.000, min. belanja 250rb. Bisa dipakai kapan saja selama aktif.',
+      discountType: 'FIXED',
+      discountValue: 20000,
+      minPurchase: 250000,
+      maxDiscount: null,
+      startDate: new Date('2026-01-01T00:00:00+07:00'),
+      endDate: new Date('2026-12-31T23:59:59+07:00'),
+      isActive: true,
+      usageLimit: null,
+    },
+    {
+      code: 'ULTAH25',
+      name: 'Promo Ultah 25%',
+      description: 'Diskon 25% spesial bulan lahir, min. belanja 100rb, maks. diskon 50rb. Lengkapi tanggal lahir di profil.',
+      discountType: 'PERCENT',
+      discountValue: 25,
+      minPurchase: 100000,
+      maxDiscount: 50000,
+      startDate: new Date('2026-01-01T00:00:00+07:00'),
+      endDate: new Date('2026-12-31T23:59:59+07:00'),
+      isActive: true,
+      usageLimit: null,
+    },
+  ]
+
+  for (const promo of promotions) {
+    await prisma.promotion.upsert({
+      where: { code: promo.code },
+      update: {
+        name: promo.name,
+        description: promo.description,
+        discountType: promo.discountType as 'PERCENT' | 'FIXED',
+        discountValue: promo.discountValue,
+        minPurchase: promo.minPurchase,
+        maxDiscount: promo.maxDiscount,
+        startDate: promo.startDate,
+        endDate: promo.endDate,
+        isActive: promo.isActive,
+        usageLimit: promo.usageLimit,
+      },
+      create: {
+        ...promo,
+        discountType: promo.discountType as 'PERCENT' | 'FIXED',
+      },
+    })
+  }
+
   console.log('✅ Seed complete!')
 }
 

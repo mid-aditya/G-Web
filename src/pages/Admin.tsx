@@ -41,15 +41,56 @@ const EMPTY_PRODUCT: ProductForm = {
   isFeatured: false,
 }
 
+interface PromoForm {
+  code: string
+  name: string
+  description: string
+  discountType: 'PERCENT' | 'FIXED'
+  discountValue: number
+  minPurchase: number
+  maxDiscount: number | ''
+  startDate: string
+  endDate: string
+  isActive: boolean
+  usageLimit: number | ''
+}
+
+const EMPTY_PROMO: PromoForm = {
+  code: '',
+  name: '',
+  description: '',
+  discountType: 'PERCENT',
+  discountValue: 10,
+  minPurchase: 0,
+  maxDiscount: '',
+  startDate: '',
+  endDate: '',
+  isActive: true,
+  usageLimit: '',
+}
+
+const toInputDateTime = (value: string) => {
+  if (!value) return ''
+  const d = new Date(value)
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
 const Admin = () => {
   const navigate = useNavigate()
   const { user, isAuthenticated, isLoading } = useAuthStore()
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'users'>('dashboard')
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders' | 'users' | 'promos'>('dashboard')
   const [stats, setStats] = useState<DashboardStats | null>(null)
   const [orders, setOrders] = useState<any[]>([])
   const [products, setProducts] = useState<any[]>([])
   const [categories, setCategories] = useState<Category[]>([])
+  const [promos, setPromos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [showPromoModal, setShowPromoModal] = useState(false)
+  const [editingPromo, setEditingPromo] = useState<string | null>(null)
+  const [promoForm, setPromoForm] = useState<PromoForm>(EMPTY_PROMO)
+  const [isSavingPromo, setIsSavingPromo] = useState(false)
+  const [promoDeleteConfirm, setPromoDeleteConfirm] = useState<string | null>(null)
 
   // Product CRUD state
   const [showProductModal, setShowProductModal] = useState(false)
@@ -81,6 +122,9 @@ const Admin = () => {
           ])
           setProducts(productsRes.data.products)
           setCategories(categoriesRes.data)
+        } else if (activeTab === 'promos') {
+          const { data } = await api.get('/admin/promotions')
+          setPromos(data)
         }
       } catch (err) {
         console.error(err)
@@ -154,6 +198,71 @@ const Admin = () => {
     }
   }
 
+  // Promo CRUD handlers
+  const openCreatePromo = () => {
+    setEditingPromo(null)
+    setPromoForm(EMPTY_PROMO)
+    setShowPromoModal(true)
+  }
+
+  const openEditPromo = (promo: any) => {
+    setEditingPromo(promo.id)
+    setPromoForm({
+      code: promo.code,
+      name: promo.name,
+      description: promo.description || '',
+      discountType: promo.discountType === 'FIXED' ? 'FIXED' : 'PERCENT',
+      discountValue: promo.discountValue,
+      minPurchase: promo.minPurchase || 0,
+      maxDiscount: promo.maxDiscount ?? '',
+      startDate: toInputDateTime(promo.startDate),
+      endDate: toInputDateTime(promo.endDate),
+      isActive: promo.isActive !== false,
+      usageLimit: promo.usageLimit ?? '',
+    })
+    setShowPromoModal(true)
+  }
+
+  const handleSavePromo = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSavingPromo(true)
+    try {
+      const payload = {
+        ...promoForm,
+        code: promoForm.code.toUpperCase().trim(),
+        maxDiscount: promoForm.maxDiscount === '' ? null : Number(promoForm.maxDiscount),
+        usageLimit: promoForm.usageLimit === '' ? null : Number(promoForm.usageLimit),
+        startDate: promoForm.startDate ? new Date(promoForm.startDate).toISOString() : undefined,
+        endDate: promoForm.endDate ? new Date(promoForm.endDate).toISOString() : undefined,
+      }
+      if (editingPromo) {
+        await api.put(`/admin/promotions/${editingPromo}`, payload)
+        toast.success('Promo diperbarui')
+      } else {
+        await api.post('/admin/promotions', payload)
+        toast.success('Promo ditambahkan')
+      }
+      setShowPromoModal(false)
+      const { data } = await api.get('/admin/promotions')
+      setPromos(data)
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Gagal menyimpan promo')
+    } finally {
+      setIsSavingPromo(false)
+    }
+  }
+
+  const handleDeletePromo = async (promoId: string) => {
+    try {
+      await api.delete(`/admin/promotions/${promoId}`)
+      setPromos(prev => prev.filter(p => p.id !== promoId))
+      setPromoDeleteConfirm(null)
+      toast.success('Promo dihapus')
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || 'Gagal menghapus promo')
+    }
+  }
+
   if (isLoading || !isAuthenticated || user?.role !== 'ADMIN') return null
 
   return (
@@ -172,6 +281,9 @@ const Admin = () => {
           </button>
           <button className={`admin-nav-item ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
             <FiShoppingCart size={16} /> Pesanan
+          </button>
+          <button className={`admin-nav-item ${activeTab === 'promos' ? 'active' : ''}`} onClick={() => setActiveTab('promos')}>
+            <FiDollarSign size={16} /> Promo
           </button>
           <button className={`admin-nav-item ${activeTab === 'users' ? 'active' : ''}`} onClick={() => setActiveTab('users')}>
             <FiUsers size={16} /> Pengguna
@@ -338,6 +450,58 @@ const Admin = () => {
                           <option value="DELIVERED">Terkirim</option>
                           <option value="CANCELLED">Dibatalkan</option>
                         </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : activeTab === 'promos' ? (
+          <div className="admin-section">
+            <div className="section-header-row">
+              <h1>Promo ({promos.length})</h1>
+              <button className="btn btn-primary btn-sm" onClick={openCreatePromo}>
+                <FiPlus size={14} /> Tambah Promo
+              </button>
+            </div>
+            <p className="text-muted" style={{ marginBottom: '1rem' }}>
+              Tanggal cantik: CANTIK99 (9.9), CANTIK1010 (10.10), CANTIK1111 (11.11), CANTIK1212 (12.12).
+              Custom: HEMAT20K. Ultah: ULTAH25 (butuh tanggal lahir user).
+            </p>
+            <div className="admin-table-wrapper">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Kode</th>
+                    <th>Nama</th>
+                    <th>Diskon</th>
+                    <th>Min. Belanja</th>
+                    <th>Periode</th>
+                    <th>Terpakai</th>
+                    <th>Status</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {promos.map((promo: any) => (
+                    <tr key={promo.id}>
+                      <td className="order-num">{promo.code}</td>
+                      <td>{promo.name}</td>
+                      <td>{promo.discountType === 'FIXED' ? formatCurrency(promo.discountValue) : `${promo.discountValue}%`}</td>
+                      <td>{formatCurrency(promo.minPurchase || 0)}</td>
+                      <td>{formatDate(promo.startDate)} - {formatDate(promo.endDate)}</td>
+                      <td>{promo.usedCount}{promo.usageLimit ? ` / ${promo.usageLimit}` : ''}</td>
+                      <td>{promo.isActive ? 'Aktif' : 'Nonaktif'}</td>
+                      <td>
+                        <div className="table-actions">
+                          <button className="action-btn" onClick={() => openEditPromo(promo)} title="Edit">
+                            <FiEdit2 size={14} />
+                          </button>
+                          <button className="action-btn danger" onClick={() => setPromoDeleteConfirm(promo.id)} title="Hapus">
+                            <FiTrash2 size={14} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
