@@ -35,6 +35,7 @@ const Account = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'addresses'>('profile')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
+  const [birthDate, setBirthDate] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [editingAddress, setEditingAddress] = useState<string | null>(null)
   const [showAddressForm, setShowAddressForm] = useState(false)
@@ -48,6 +49,7 @@ const Account = () => {
     if (user) {
       setName(user.name)
       setPhone(user.phone || '')
+      setBirthDate(user.birthDate ? user.birthDate.slice(0, 10) : '')
     }
   }, [user, isAuthenticated, isLoading, navigate])
 
@@ -72,7 +74,7 @@ const Account = () => {
     e.preventDefault()
     setIsSaving(true)
     try {
-      await updateProfile({ name, phone })
+      await updateProfile({ name, phone, birthDate: birthDate || null })
       toast.success('Profil berhasil diperbarui')
     } catch (err: any) {
       toast.error(err.response?.data?.error || 'Gagal update profil')
@@ -226,6 +228,10 @@ const Account = () => {
                   <div className="form-group">
                     <label>No. Telepon</label>
                     <input type="tel" className="input" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="08xxxxxxxxxx" />
+                  </div>
+                  <div className="form-group">
+                    <label>Tanggal Lahir (untuk promo ultah ULTAH25)</label>
+                    <input type="date" className="input" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
                   </div>
                 </div>
 

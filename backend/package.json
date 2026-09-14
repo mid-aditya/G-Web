@@ -1,5 +1,5 @@
 {
-  "name": "setsuko-backend",
+  {"name": "setsuko-backend",
   "version": "1.0.0",
   "type": "module",
   "scripts": {
@@ -8,6 +8,7 @@
     "start": "node dist/server.js",
     "db:push": "prisma db push",
     "db:seed": "tsx src/seed.ts",
+    "db:reseed": "tsx src/reset.ts",
     "db:studio": "prisma studio"
   },
   "dependencies": {

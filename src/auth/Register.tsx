@@ -11,6 +11,7 @@ const Register = () => {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
+  const [birthDate, setBirthDate] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const googleBtnRef = useRef<HTMLDivElement>(null)
@@ -19,7 +20,7 @@ const Register = () => {
     e.preventDefault()
     setIsLoading(true)
     try {
-      await register({ name, email, phone, password })
+      await register({ name, email, phone, birthDate: birthDate || undefined, password })
       toast.success('Akun berhasil dibuat!')
       navigate('/')
     } catch (err: any) {
@@ -108,6 +109,16 @@ const Register = () => {
                 placeholder="08xxxxxxxxxx"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Tanggal Lahir (opsional, untuk promo ultah)</label>
+              <input
+                type="date"
+                className="input"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
               />
             </div>
 

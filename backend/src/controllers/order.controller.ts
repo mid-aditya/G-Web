@@ -113,6 +113,14 @@ export const createOrder = async (req: Request, res: Response) => {
           quantity: 1,
         })
       }
+      if (shippingCost > 0) {
+        midtransItems.push({
+          id: 'ONGKIR',
+          name: 'Ongkos kirim',
+          price: shippingCost,
+          quantity: 1,
+        })
+      }
       const midtransResult = await createMidtransTransaction({
         orderId: order.id,
         items: midtransItems,

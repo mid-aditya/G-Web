@@ -21,6 +21,9 @@ interface OrderItem {
 interface Order {
   id: string
   orderNumber: string
+  subtotal?: number
+  discountAmount?: number
+  promoCode?: string | null
   total: number
   status: string
   createdAt: string
@@ -132,7 +135,12 @@ const Orders = () => {
                       ))}
                     </div>
                     <div className="order-footer">
-                      <span className="order-total">Total: {formatCurrency(order.total)}</span>
+                      <div>
+                        {order.promoCode && (order.discountAmount || 0) > 0 && (
+                          <p className="order-date">Promo {order.promoCode}: -{formatCurrency(order.discountAmount || 0)}</p>
+                        )}
+                        <span className="order-total">Total: {formatCurrency(order.total)}</span>
+                      </div>
                     </div>
                   </div>
                 ))}

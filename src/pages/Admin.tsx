@@ -614,6 +614,181 @@ const Admin = () => {
         </div>
       )}
 
+      {/* Promo Modal */}
+      {showPromoModal && (
+        <div className="modal-overlay" onClick={() => setShowPromoModal(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>{editingPromo ? 'Edit Promo' : 'Tambah Promo Baru'}</h2>
+              <button className="modal-close" onClick={() => setShowPromoModal(false)}>
+                <FiX size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSavePromo} className="modal-body">
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Kode Promo</label>
+                  <input
+                    type="text"
+                    className="input"
+                    value={promoForm.code}
+                    onChange={(e) => setPromoForm({ ...promoForm, code: e.target.value.toUpperCase() })}
+                    required
+                    disabled={!!editingPromo}
+                    placeholder="CANTIK99"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Tipe Diskon</label>
+                  <select
+                    className="input"
+                    value={promoForm.discountType}
+                    onChange={(e) => setPromoForm({ ...promoForm, discountType: e.target.value as 'PERCENT' | 'FIXED' })}
+                  >
+                    <option value="PERCENT">Persen (%)</option>
+                    <option value="FIXED">Nominal (Rp)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Nama Promo</label>
+                <input
+                  type="text"
+                  className="input"
+                  value={promoForm.name}
+                  onChange={(e) => setPromoForm({ ...promoForm, name: e.target.value })}
+                  required
+                  placeholder="Promo 9.9 Tanggal Cantik"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Deskripsi</label>
+                <textarea
+                  className="input"
+                  rows={2}
+                  value={promoForm.description}
+                  onChange={(e) => setPromoForm({ ...promoForm, description: e.target.value })}
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Nilai Diskon {promoForm.discountType === 'FIXED' ? '(Rp)' : '(%)'}</label>
+                  <input
+                    type="number"
+                    className="input"
+                    value={promoForm.discountValue}
+                    onChange={(e) => setPromoForm({ ...promoForm, discountValue: Number(e.target.value) })}
+                    required
+                    min={0}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Min. Belanja (Rp)</label>
+                  <input
+                    type="number"
+                    className="input"
+                    value={promoForm.minPurchase}
+                    onChange={(e) => setPromoForm({ ...promoForm, minPurchase: Number(e.target.value) })}
+                    min={0}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Maks. Diskon (Rp, kosongkan jika tanpa batas)</label>
+                  <input
+                    type="number"
+                    className="input"
+                    value={promoForm.maxDiscount}
+                    onChange={(e) => setPromoForm({ ...promoForm, maxDiscount: e.target.value === '' ? '' : Number(e.target.value) })}
+                    min={0}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Kuota (kosongkan jika tanpa batas)</label>
+                  <input
+                    type="number"
+                    className="input"
+                    value={promoForm.usageLimit}
+                    onChange={(e) => setPromoForm({ ...promoForm, usageLimit: e.target.value === '' ? '' : Number(e.target.value) })}
+                    min={0}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Mulai</label>
+                  <input
+                    type="datetime-local"
+                    className="input"
+                    value={promoForm.startDate}
+                    onChange={(e) => setPromoForm({ ...promoForm, startDate: e.target.value })}
+                    required={!editingPromo}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Berakhir</label>
+                  <input
+                    type="datetime-local"
+                    className="input"
+                    value={promoForm.endDate}
+                    onChange={(e) => setPromoForm({ ...promoForm, endDate: e.target.value })}
+                    required={!editingPromo}
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={promoForm.isActive}
+                    onChange={(e) => setPromoForm({ ...promoForm, isActive: e.target.checked })}
+                  />
+                  Promo Aktif
+                </label>
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="btn btn-ghost" onClick={() => setShowPromoModal(false)}>
+                  Batal
+                </button>
+                <button type="submit" className="btn btn-primary" disabled={isSavingPromo}>
+                  {isSavingPromo ? 'Menyimpan...' : editingPromo ? 'Simpan Perubahan' : 'Tambah Promo'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Promo Confirmation */}
+      {promoDeleteConfirm && (
+        <div className="modal-overlay" onClick={() => setPromoDeleteConfirm(null)}>
+          <div className="modal modal-sm" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Hapus Promo</h2>
+              <button className="modal-close" onClick={() => setPromoDeleteConfirm(null)}>
+                <FiX size={20} />
+              </button>
+            </div>
+            <div className="modal-body">
+              <p className="text-muted">Hapus kode promo ini? Order lama tetap menyimpan riwayat kodenya.</p>
+            </div>
+            <div className="modal-actions">
+              <button className="btn btn-ghost" onClick={() => setPromoDeleteConfirm(null)}>Batal</button>
+              <button className="btn btn-danger" onClick={() => handleDeletePromo(promoDeleteConfirm)}>Hapus</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Delete Confirmation Modal */}
       {deleteConfirm && (
         <div className="modal-overlay" onClick={() => setDeleteConfirm(null)}>

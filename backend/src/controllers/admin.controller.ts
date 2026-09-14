@@ -137,6 +137,7 @@ export const getAllOrders = async (req: Request, res: Response) => {
         include: {
           user: { select: { id: true, name: true, email: true } },
           address: true,
+          promotion: { select: { code: true, name: true } },
           items: {
             include: {
               variant: {
